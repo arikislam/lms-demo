@@ -1,0 +1,20 @@
+{
+    "name": "smariqislam/coupon",
+    "description": "This will generate coupons",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Smariqislam\\Coupon\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "S M Ariq Islam",
+            "email": "arikislam321@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+
+}
