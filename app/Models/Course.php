@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Smariqislam\Coupon\Models\Coupon;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -35,6 +36,6 @@ class Course extends Model
 
     public function coupons(): BelongsToMany
     {
-        return $this->belongsToMany(Coupon::class, 'course_coupon');
+        return $this->belongsToMany(Coupon::class, 'coupon_course', 'product_id', 'coupon_id');
     }
 }
