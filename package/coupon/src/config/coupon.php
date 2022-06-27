@@ -10,5 +10,6 @@ return [
     'category_model' => CourseCategory::class, // Product Category model
     'category_primary_key' => 'id', //
     'category_display_column' => 'name',//
-    'api_route_base_prefix' => 'api'
+    'api_route_base_prefix' => 'api',
+    'api_middlewares' => ['auth:sanctum']
 ];

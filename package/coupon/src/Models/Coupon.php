@@ -1,6 +1,7 @@
 <?php
 
 namespace Smariqislam\Coupon\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -8,14 +9,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Coupon extends Model
 {
     protected $fillable = [
-      'label',
-      'code',
-      'coupon_applied_on',
-      'product_category_id',
-      'discount_type',
-      'discount_amount',
-      'expire_date',
-      'status'
+        'label',
+        'code',
+        'coupon_applied_on',
+        'product_category_id',
+        'discount_type',
+        'discount_amount',
+        'expire_date',
+        'status',
+    ];
+
+    protected $dates = [
+        'expire_date',
     ];
 
     public function products(): BelongsToMany

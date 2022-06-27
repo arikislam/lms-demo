@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ApiController extends Controller
 {
 
+
     public function validationErrorResponse($messages = [], $data = [], $responseCode = Response::HTTP_UNPROCESSABLE_ENTITY): JsonResponse
     {
         return response()->json([
