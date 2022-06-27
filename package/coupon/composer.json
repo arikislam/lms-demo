@@ -16,5 +16,14 @@
     ],
     "minimum-stability": "dev",
     "require": {},
-
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Smariqislam\\Coupon\\CouponServiceProvider"
+            ],
+            "aliases": {
+                "Coupon": "Smariqislam\\Coupon\\Facades\\Coupon"
+            }
+        }
+    }
 }

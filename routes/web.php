@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Smariqislam\Coupon\Facades\ApplyCoupon;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,5 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+//    Cache::get('data');
+    $data = ApplyCoupon::test();
+    dd($data);
 })->name('login');

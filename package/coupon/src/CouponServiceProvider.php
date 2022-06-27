@@ -1,8 +1,9 @@
 <?php
 
 namespace Smariqislam\Coupon;
+use Illuminate\Support\ServiceProvider;
+use Smariqislam\Coupon\Classes\Coupon;
 
-use Carbon\Laravel\ServiceProvider;
 
 class CouponServiceProvider extends ServiceProvider
 {
@@ -19,7 +20,9 @@ class CouponServiceProvider extends ServiceProvider
 
     public function register()
     {
-
+        $this->app->bind('coupon', function($app) {
+            return new Coupon();
+        });
     }
 
 }
