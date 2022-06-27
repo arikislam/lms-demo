@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Log;
 use Smariqislam\Coupon\Models\Coupon;
 use Smariqislam\Coupon\Services\CouponService;
+use Smariqislam\Coupon\Transformers\TransformData;
 
 class CouponController extends ApiController
 {
@@ -22,7 +23,7 @@ class CouponController extends ApiController
     public function getCoupons(Request $request)
     {
         try {
-            return $this->successResponse($this->couponService->getCoupons($request));
+            return $this->successResponse(app(TransformData::class)->transformCoupons($this->couponService->getCoupons($request)));
         } catch (Exception $e) {
             Log::error($e);
             return $this->errorResponse('Cannot get coupons');
@@ -42,21 +43,43 @@ class CouponController extends ApiController
 
         try {
             $coupon = $this->couponService->createCoupon($request);
-            return $this->successResponse($coupon->toArray());
+            return $this->successResponse(app(TransformData::class)->transformCoupon($coupon));
         } catch (Exception $e) {
             return $this->errorResponse('Cannot create coupon');
         }
     }
 
 
-    public function getCouponDetails(Coupon $coupon)
+    public function getCouponDetails($couponId)
     {
+        if (blank($coupon = Coupon::find($couponId))) {
+            return $this->errorResponse('Coupon not found');
+        }
 
+        try {
+            return $this->successResponse(app(TransformData::class)->transformCoupon($coupon));
+        } catch (Exception $e) {
+            return $this->errorResponse('Cannot create coupon');
+        }
     }
 
-    public function updateCoupon(Coupon $coupon, Request $request)
+    public function updateCoupon($couponId, Request $request)
     {
+        if (blank($coupon = Coupon::find($couponId))) {
+            return $this->errorResponse('Coupon not found');
+        }
 
+        $validation = $this->couponService->validateCoupon($request, $coupon->id);
+        if ($validation->fails()) {
+            return $this->validationErrorResponse($validation->errors()->toArray());
+        }
+
+        try {
+            $coupon = $this->couponService->updateCoupon($request, $coupon);
+            return $this->successResponse(app(TransformData::class)->transformCoupon($coupon));
+        } catch (Exception $e) {
+            return $this->errorResponse('Cannot create coupon');
+        }
     }
 
 
