@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Log;
 use Smariqislam\Coupon\Models\Coupon;
+use Smariqislam\Coupon\Transformers\TransformData;
 use Validator;
 
 class CouponService
@@ -34,16 +35,11 @@ class CouponService
     ];
 
 
-    public function getProducts()
-    {
-
-    }
-
     /**
      * @throws \Exception
      * @throws \Throwable
      */
-    public function createCoupon(Request $request)
+    public function createCoupon(Request $request): Coupon
     {
         [$couponData, $productData] = $this->prepareCouponData($request);
 
@@ -93,11 +89,6 @@ class CouponService
 
     }
 
-
-    public function getCouponDetails()
-    {
-
-    }
 
     public function getCoupons($request)
     {
@@ -153,12 +144,6 @@ class CouponService
         return [self::COUPON_DISCOUNT_PERCENTAGE, self::COUPON_DISCOUNT_FIXED_PRICE];
     }
 
-
-//$class= config('coupon.category_model');
-//$category = new $class;
-//
-//$coupon = Coupon::with('products')->find(1);
-//dd($coupon->toArray());
     private function prepareCouponData(Request $request): array
     {
         $couponData        = $request->only('label', 'code', 'coupon_applied_on', 'discount_type', 'discount_amount', 'expire_date', 'status');
@@ -167,4 +152,41 @@ class CouponService
 
         return [$couponData, $products];
     }
+
+    public function getSearchParams()
+    {
+        return [
+            'coupon_applied_on'     => $this->getCouponAppliedOnValues(),
+            'coupon_discount_types' => $this->getCouponDiscountTypeValues(),
+        ];
+    }
+
+    public function getCouponByCode($code): ?Coupon
+    {
+        return Coupon::findByCode($code);
+    }
+
+    public function checkValidity(Coupon $coupon, $productId)
+    {
+        $class = config('coupon.product_model');
+
+        $model = new $class;
+
+        if (blank($product = $model->find($productId))) {
+            return false;
+        }
+
+        if ($coupon->product_category_id && data_get($product, config('coupon.product_category_column')) != $coupon->product_category_id) {
+            return false;
+        }
+
+        if (blank($coupon->products->where(config('coupon.product_primary_key'), $productId)->first())) {
+            return false;
+        }
+
+        return app(TransformData::class)->calculateDiscount($coupon, $product);
+
+    }
+
+
 }

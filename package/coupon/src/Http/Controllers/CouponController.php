@@ -11,7 +11,7 @@ use Smariqislam\Coupon\Transformers\TransformData;
 
 class CouponController extends ApiController
 {
-    private $couponService;
+    private CouponService $couponService;
 
     public function __construct()
     {
@@ -80,6 +80,11 @@ class CouponController extends ApiController
         } catch (Exception $e) {
             return $this->errorResponse('Cannot create coupon');
         }
+    }
+
+    public function getSearchParameters()
+    {
+        return $this->successResponse($this->couponService->getSearchParams());
     }
 
 

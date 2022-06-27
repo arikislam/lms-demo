@@ -32,4 +32,16 @@ class Coupon extends Model
     {
         return $this->belongsTo(config('coupon.category_model'), 'product_category_id');
     }
+
+
+    public static function findByCode($code)
+    {
+        $coupon = static::with('products')->where('code', $code)->first();
+
+        if (blank($coupon)) {
+            return null;
+        }
+
+        return $coupon;
+    }
 }

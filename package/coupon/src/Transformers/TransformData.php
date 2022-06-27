@@ -42,4 +42,20 @@ class TransformData
         });
         return $data;
     }
+
+    public function calculateDiscount($coupon, $product)
+    {
+        if (Coupon::typePercentage($coupon->discount_type)) {
+            $discountAmount = $product->price * ($coupon->discount_amount / 100);
+        } else {
+            $discountAmount = $coupon->discount_amount;
+        }
+
+        return [
+            'discount_type'    => Coupon::discountTypeLabel($coupon->discount_type),
+            'applied_on'       => Coupon::couponAppliedOnLabel($coupon->coupon_applied_on),
+            'discount_amount'  => $discountAmount,
+            'discounted_price' => $product->price - $discountAmount,
+        ];
+    }
 }

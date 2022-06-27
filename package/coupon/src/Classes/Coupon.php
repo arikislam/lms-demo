@@ -6,20 +6,16 @@ use Smariqislam\Coupon\Services\CouponService;
 
 class Coupon
 {
-    public function checkValidity($couponCode): bool
+    public function getCouponByCode($couponCode)
     {
-        return true;
-    }
+        return app(CouponService::class)->getCouponByCode($couponCode);
 
-    public function applicable($couponCode, $productId): bool
-    {
-        return true;
     }
 
 
-    public function finalPrice($couponCode, $productId): float
+    public function applyCouponToProduct($coupon, $productId)
     {
-        return 100.0;
+        return app(CouponService::class)->checkValidity($coupon, $productId);
     }
 
     public function details($couponCode): array
@@ -49,5 +45,11 @@ class Coupon
     public function discountTypeValues(): array
     {
         return app(CouponService::class)->getCouponDiscountTypeValues();
+    }
+
+    public function typePercentage($data)
+    {
+        return data_get(collect($this->discountTypeValues())->where('value', $data)->first(), 'key', 'N/A') === 'percentage';
+
     }
 }
