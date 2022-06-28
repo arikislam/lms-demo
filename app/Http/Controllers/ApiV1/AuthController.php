@@ -3,27 +3,31 @@
 namespace App\Http\Controllers\ApiV1;
 
 use App\Models\User;
-use Carbon\Carbon;
-use Hash;
+use App\Services\AuthService;
+use App\Transformers\UserTransformer;
+use Exception;
 use Illuminate\Http\Request;
-use Validator;
+use Log;
 
 class AuthController extends ApiController
 {
+    private AuthService $authService;
+
+    public function __construct()
+    {
+        $this->authService = new AuthService();
+    }
+
     public function login(Request $request)
     {
-        $validation = Validator::make($request->all(), [
-            'email'    => 'required|email|max:250|exists:users,email',
-            'password' => 'required|min:6',
-        ]);
-
+        $validation = $this->authService->validateLogin($request);
 
         if ($validation->fails()) {
             return $this->validationErrorResponse($validation->messages()->toArray());
         }
 
-        $user = User::where('email', $request->get('email'))->first();
-        if (!$user || !Hash::check($request->get('password'), $user->password)) {
+        $user = User::findByEmail($request->get('email'));
+        if (!$user || $this->authService->checkUserPassword($user, $request)) {
             return $this->validationErrorResponse([
                 'email' => [
                     'Credentials did not match',
@@ -31,51 +35,44 @@ class AuthController extends ApiController
             ]);
         }
 
-        $data = [
-            'user'    => [
-                'name'  => data_get($user, 'name'),
-                'email' => data_get($user, 'email'),
-            ],
-            'isAdmin' => (bool)data_get($user, 'is_admin'),
-            'token'   => $user->createToken('lms-demo')->plainTextToken,
-            'expiry'  => Carbon::now()
-                ->addYear()
-                ->endOfDay()
-                ->format('d-m-Y\TH:i'),
-        ];
+        try {
+            return $this->successResponse(app(UserTransformer::class)->transformUserForLogin($user), 'Login success');
 
-        return $this->successResponse($data, 'Login success');
+        } catch (Exception $e) {
+            Log::error($e);
+            return $this->errorResponse('Cannot login user');
+        }
 
     }
 
     public function register(Request $request)
     {
-        $validation = Validator::make($request->all(), [
-            'email'                 => 'required|email|max:250|unique:users',
-            'name'                  => 'required|string|max:250',
-            'password'              => 'required|min:6|confirmed',
-            'password_confirmation' => 'required',
-        ]);
+        $validation = $this->authService->validateUserRegistration($request);
 
         if ($validation->fails()) {
             return $this->validationErrorResponse($validation->messages()->toArray());
         }
 
-        $data             = $request->only(['email', 'name']);
-        $data['password'] = Hash::make($request->get('password'));
-        $user             = User::create($data);
+        try {
+            return $this->successResponse(app(UserTransformer::class)->transformUserForLogin($this->authService->registerNewUser($request)), 'Register successful');
+        } catch (Exception $e) {
+            Log::error($e);
+            return $this->errorResponse('Cannot register user');
 
-
-        return $this->successResponse($user->toArray(), 'Register successful');
+        }
     }
 
     public function logout()
     {
-        if (!blank(auth()->user())) {
-            auth()->user()->currentAccessToken()->delete();
+        try {
+            return $this->successResponse($this->authService->logOutUser(auth()->user()), 'Logged out.');
+
+        } catch (Exception $e) {
+            Log::error($e);
+            return $this->errorResponse('Cannot logout user');
+
         }
 
-        return $this->successResponse([], 'Logged out.');
 
     }
 }
