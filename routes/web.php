@@ -16,6 +16,9 @@ use Smariqislam\Coupon\Facades\ApplyCoupon;
 
 Route::get('/', function () {
 //    Cache::get('data');
-    $data = ApplyCoupon::test();
-    dd($data);
+    $class = config('coupon.product_model');
+    $model = new $class;
+
+    dd($model);
+
 })->name('login');

@@ -24,7 +24,7 @@ class TransformData
     public function transformCoupon($coupon)
     {
         $coupon->load('products', 'productCategory');
-        $data                            = $coupon->only('id','label', 'code', 'discount_type', 'discount_amount', 'expire_date', 'status', 'coupon_applied_on', 'discount_type');
+        $data                            = $coupon->only('id', 'label', 'code', 'discount_type', 'discount_amount', 'expire_date', 'status', 'coupon_applied_on', 'discount_type');
         $data['coupon_applied_on_label'] = Coupon::couponAppliedOnLabel($coupon->coupon_applied_on);
         $data['discount_type_label']     = Coupon::discountTypeLabel($coupon->discount_type);
         $data['product_category_id']     = data_get($coupon, 'product_category_id');
@@ -45,8 +45,9 @@ class TransformData
 
     public function calculateDiscount($coupon, $product)
     {
+        $productPrice = data_get($product, config('coupon.product_price_column'));
         if (Coupon::typePercentage($coupon->discount_type)) {
-            $discountAmount = $product->price * ($coupon->discount_amount / 100);
+            $discountAmount = $productPrice * ($coupon->discount_amount / 100);
         } else {
             $discountAmount = $coupon->discount_amount;
         }
@@ -55,7 +56,7 @@ class TransformData
             'discount_type'    => Coupon::discountTypeLabel($coupon->discount_type),
             'applied_on'       => Coupon::couponAppliedOnLabel($coupon->coupon_applied_on),
             'discount_amount'  => $discountAmount,
-            'discounted_price' => $product->price - $discountAmount,
+            'discounted_price' => $productPrice - $discountAmount,
         ];
     }
 }
