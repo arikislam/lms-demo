@@ -10,6 +10,7 @@
         "laravel/framework": "^9.11",
         "laravel/sanctum": "^2.15",
         "laravel/tinker": "^2.7",
+        "smariqislam/coupon": "dev-master",
         "spatie/laravel-sluggable": "^3.4"
     },
     "require-dev": {
@@ -30,8 +31,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/",
-            "Smariqislam\\Coupon\\": "package/coupon/src/"
+            "Tests\\": "tests/"
 
         }
     },
