@@ -9,7 +9,7 @@ class TransformData
     public function transformCoupons($coupons)
     {
         $coupons->getCollection()->transform(function ($coupon) {
-            $data                            = $coupon->only('label', 'code', 'discount_type', 'discount_amount', 'expire_date', 'status', 'coupon_applied_on', 'discount_type');
+            $data                            = $coupon->only('id', 'label', 'code', 'discount_type', 'discount_amount', 'expire_date', 'status', 'coupon_applied_on', 'discount_type');
             $data['coupon_applied_on_label'] = Coupon::couponAppliedOnLabel($coupon->coupon_applied_on);
             $data['discount_type_label']     = Coupon::discountTypeLabel($coupon->discount_type);
             $data['product_category_id']     = data_get($coupon, 'product_category_id');
@@ -24,7 +24,7 @@ class TransformData
     public function transformCoupon($coupon)
     {
         $coupon->load('products', 'productCategory');
-        $data                            = $coupon->only('label', 'code', 'discount_type', 'discount_amount', 'expire_date', 'status', 'coupon_applied_on', 'discount_type');
+        $data                            = $coupon->only('id','label', 'code', 'discount_type', 'discount_amount', 'expire_date', 'status', 'coupon_applied_on', 'discount_type');
         $data['coupon_applied_on_label'] = Coupon::couponAppliedOnLabel($coupon->coupon_applied_on);
         $data['discount_type_label']     = Coupon::discountTypeLabel($coupon->discount_type);
         $data['product_category_id']     = data_get($coupon, 'product_category_id');

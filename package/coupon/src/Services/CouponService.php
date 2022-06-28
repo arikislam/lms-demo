@@ -13,26 +13,10 @@ use Validator;
 
 class CouponService
 {
-    public const  COUPON_DISCOUNT_FIXED_PRICE = [
-        'value' => 1,
-        'label' => 'Fixed Price',
-        'key'   => 'fixed_price',
-    ];
-    public const  COUPON_DISCOUNT_PERCENTAGE = [
-        'value' => 2,
-        'label' => 'Percentage',
-        'key'   => 'percentage',
-    ];
-    public const  COUPON_APPLIED_ON_PRODUCTS = [
-        'value' => 1,
-        'label' => 'Products',
-        'key'   => 'products',
-    ];
-    public const  COUPON_APPLIED_ON_PRODUCT_CATEGORIES = [
-        'value' => 2,
-        'label' => 'Product Categories',
-        'key'   => 'product_categories',
-    ];
+    public const  COUPON_DISCOUNT_FIXED_PRICE = 1;
+    public const  COUPON_DISCOUNT_PERCENTAGE = 2;
+    public const  COUPON_APPLIED_ON_PRODUCTS = 1;
+    public const  COUPON_APPLIED_ON_PRODUCT_CATEGORIES = 2;
 
 
     /**
@@ -65,11 +49,12 @@ class CouponService
     {
         $coupon->load('products');
         [$couponData, $productData] = $this->prepareCouponData($request);
+
+
         DB::beginTransaction();
         try {
             $coupon = $coupon->fill($couponData);
             $coupon->save();
-
             if (!blank($coupon->product_category_id) && !blank($coupon->products)) {
                 $coupon->products()->detach();
             }
@@ -120,11 +105,11 @@ class CouponService
         return Validator::make($request->all(), [
             'label'               => 'required|max:250',
             'code'                => 'required|regex:/(^([a-zA-Z0-9\-_]+)?$)/u|unique:coupons,code,' . $id,
-            'coupon_applied_on'   => ['required', Rule::in(array_values(array_column($this->getCouponAppliedOnValues(), 'value')))],
-            'discount_type'       => ['required', Rule::in(array_values(array_column($this->getCouponDiscountTypeValues(), 'value')))],
-            'product_category_id' => Rule::requiredIf($request->get('coupon_applied_on') == data_get(self::COUPON_APPLIED_ON_PRODUCT_CATEGORIES, 'value')),
+            'coupon_applied_on'   => ['required', Rule::in($this->getCouponAppliedOnValues())],
+            'discount_type'       => ['required', Rule::in($this->getCouponDiscountTypeValues())],
+            'product_category_id' => Rule::requiredIf($request->get('coupon_applied_on') == self::COUPON_APPLIED_ON_PRODUCT_CATEGORIES),
             'discount_amount'     => 'required|numeric',
-            'products'            => ['array', Rule::requiredIf($request->get('coupon_applied_on') == data_get(self::COUPON_APPLIED_ON_PRODUCTS, 'value'))],
+            'products'            => ['array', Rule::requiredIf($request->get('coupon_applied_on') == self::COUPON_APPLIED_ON_PRODUCTS)],
             'expire_date'         => 'required|date|after:today',
             'status'              => 'required|boolean',
         ], [
@@ -146,9 +131,10 @@ class CouponService
 
     private function prepareCouponData(Request $request): array
     {
+
         $couponData        = $request->only('label', 'code', 'coupon_applied_on', 'discount_type', 'discount_amount', 'expire_date', 'status');
-        $productCategoryId = $couponData['product_category_id'] = ($request->get('coupon_applied_on') === data_get(self::COUPON_APPLIED_ON_PRODUCT_CATEGORIES, 'value')) ? $request->get('product_category_id') : null;
-        $products          = $productCategoryId ? [] : $request->get('products');
+        $productCategoryId = $couponData['product_category_id'] = ($request->get('coupon_applied_on') == self::COUPON_APPLIED_ON_PRODUCT_CATEGORIES) ? $request->get('product_category_id') : null;
+        $products          = !blank($productCategoryId) ? [] : $request->get('products');
 
         return [$couponData, $products];
     }
@@ -156,8 +142,8 @@ class CouponService
     public function getSearchParams()
     {
         return [
-            'coupon_applied_on'     => $this->getCouponAppliedOnValues(),
-            'coupon_discount_types' => $this->getCouponDiscountTypeValues(),
+            'coupon_applied_on'     => $this->getCouponAppliedOn(),
+            'coupon_discount_types' => $this->getCouponDiscountTypes(),
         ];
     }
 
@@ -186,6 +172,42 @@ class CouponService
 
         return app(TransformData::class)->calculateDiscount($coupon, $product);
 
+    }
+
+    public function getCouponAppliedOn(): array
+    {
+        return [
+            [
+                'value' => self::COUPON_APPLIED_ON_PRODUCTS,
+                'label' => 'Products',
+                'key'   => 'products',
+            ],
+
+            [
+                'value' => self::COUPON_APPLIED_ON_PRODUCT_CATEGORIES,
+                'label' => 'Product categories',
+                'key'   => 'product-categories',
+            ],
+
+        ];
+    }
+
+    public function getCouponDiscountTypes(): array
+    {
+        return [
+            [
+                'value' => self::COUPON_DISCOUNT_FIXED_PRICE,
+                'label' => 'Fixed Price',
+                'key'   => 'Percentage',
+            ],
+
+            [
+                'value' => self::COUPON_DISCOUNT_PERCENTAGE,
+                'label' => 'Percentage',
+                'key'   => 'percentage',
+            ],
+
+        ];
     }
 
 

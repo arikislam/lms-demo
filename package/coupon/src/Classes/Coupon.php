@@ -38,13 +38,13 @@ class Coupon
 
     public function couponAppliedOnValues(): array
     {
-        return app(CouponService::class)->getCouponAppliedOnValues();
+        return app(CouponService::class)->getCouponAppliedOn();
 
     }
 
     public function discountTypeValues(): array
     {
-        return app(CouponService::class)->getCouponDiscountTypeValues();
+        return app(CouponService::class)->getCouponDiscountTypes();
     }
 
     public function typePercentage($data)
