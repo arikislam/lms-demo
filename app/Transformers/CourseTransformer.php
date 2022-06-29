@@ -18,7 +18,7 @@ class CourseTransformer
 
     public function transformCourse($course)
     {
-        $data                      = $course->only('title', 'slug', 'price', 'description');
+        $data                      = $course->only('id', 'title', 'slug', 'price', 'description');
         $data['category']          = $course->category->only('id', 'name');
         $data['url']               = $this->imageUrl;
         $data['short_description'] = $course->short_description;

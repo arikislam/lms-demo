@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Course;
+use App\Models\CourseCategory;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Smariqislam\Coupon\Facades\Coupon;
@@ -72,5 +73,24 @@ class CourseService
             ];
         })->toArray();
 
+    }
+
+    public function searchCourseCategory(Request $request)
+    {
+        $keyword = $request->get('keyword');
+
+        $query = CourseCategory::query();
+
+        if (!blank($keyword)) {
+            $query->where('name', 'like', '%' . $keyword . '%');
+        }
+
+
+        return $query->take(10)->get()->map(function ($item) {
+            return [
+                'value' => data_get($item, 'id'),
+                'label' => data_get($item, 'name'),
+            ];
+        })->toArray();
     }
 }

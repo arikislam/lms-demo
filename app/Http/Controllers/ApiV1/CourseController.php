@@ -69,4 +69,14 @@ class CourseController extends ApiController
         }
     }
 
+    public function searchCategories(Request $request)
+    {
+        try {
+            return $this->successResponse($this->courseService->searchCourseCategory($request));
+        } catch (Exception $e) {
+            Log::error($e);
+            return $this->errorResponse('Cannot get course category.');
+        }
+    }
+
 }
