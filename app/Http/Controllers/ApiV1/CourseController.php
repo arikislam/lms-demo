@@ -59,4 +59,14 @@ class CourseController extends ApiController
 
     }
 
+    public function searchCourses(Request $request)
+    {
+        try {
+            return $this->successResponse(app(CourseTransformer::class)->transformCoursesForSearch($this->courseService->searchCourses($request)));
+        } catch (Exception $e) {
+            Log::error($e);
+            return $this->errorResponse('Cannot get courses.');
+        }
+    }
+
 }

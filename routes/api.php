@@ -29,6 +29,8 @@ Route::controller(AuthController::class)->name('api.')->group(function () {
 
 Route::controller(CourseController::class)->prefix('courses')->name('api.courses')->group(function () {
     Route::get('/', 'getCourses')->name('get');
+    Route::get('/search', 'searchCourses')->name('search');
     Route::get('/{course}/details', 'getCourseDetails')->name('details');
     Route::post('/{course}/apply-coupon', 'applyCoupon')->name('apply-coupon');
+
 });
