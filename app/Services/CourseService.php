@@ -50,4 +50,27 @@ class CourseService
             return [true, $validProduct, 'Coupon is already expired.'];
         }
     }
+
+    public function searchCourses(Request $request): array
+    {
+        $keyword = $request->get('keyword');
+
+        $query = Course::query()->with('category');
+
+        if (!blank($keyword)) {
+            $query->where('title', 'like', '%' . $keyword . '%')
+                ->orWhereHas('category', function ($q) use ($keyword) {
+                    $q->where('name', 'like', '%' . $keyword . '%');
+                });
+        }
+
+
+        return $query->take(10)->get()->map(function ($item) {
+            return [
+                'value' => data_get($item, 'id'),
+                'label' => data_get($item, 'title'),
+            ];
+        })->toArray();
+
+    }
 }
