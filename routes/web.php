@@ -16,6 +16,7 @@ use Smariqislam\Coupon\Facades\ApplyCoupon;
 
 Route::get('/', function () {
 //    Cache::get('data');
+    dd('I am working.');
     return redirect()->to('http://app.ariq.dev');
 
 })->name('login');
