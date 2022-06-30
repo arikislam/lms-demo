@@ -17,6 +17,7 @@ This Project is demo project uses Laravel 9 Needs php 8.1 or above
 * Publish config file using `php artisan vendor:publish --tag=coupon-config`
 
 * Run `php artisan migrate`
+* Run `php artisan db:seed`
 
 ## Routes ##
 - - - -
